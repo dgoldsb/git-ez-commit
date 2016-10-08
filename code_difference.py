@@ -70,9 +70,9 @@ def search_nodes(tree_body, object_type):
     return top_level, not_object_type_code
 
 
-def ast_differences(root, current_body, previous_body, types):
+def ast_differences(root, current_body, previous_body, root_types):
     added, current_code, deleted, previous_code, matching = \
-        code_unit_changes(current_body, previous_body, types[0])
+        code_unit_changes(current_body, previous_body, root_types[0] if len(root_types)>0 else None)
 
     for n in deleted:
         diff = Difference(ChangeType.delete, n, None)
@@ -86,17 +86,17 @@ def ast_differences(root, current_body, previous_body, types):
 
     children_have_difference = False
 
-    popped_types = types[1:]
-    if len(popped_types) > 0:
-        for current_match, previous_match in matching:
-            current_body = current_match.body
-            previous_body = previous_match.body
+    popped_types = root_types[1:]
 
-            child_difference = expand_difference_tree(current_body, current_match, popped_types, previous_body,
-                                                      previous_match, root)
+    for current_match, previous_match in matching:
+        current_body = current_match.body if "body" in current_match._fields else []
+        previous_body = previous_match.body if "body" in current_match._fields else []
 
-            children_have_difference |= child_difference
+        child_difference = expand_difference_tree(current_body, current_match, popped_types, previous_body,
+                                                  previous_match, root)
 
+        children_have_difference |= child_difference
+    if len(current_code) > 0 or len(previous_code) > 0:
         child_difference = expand_difference_tree(current_code, current_code, popped_types, previous_code, previous_code, root)
         children_have_difference |= child_difference
 
@@ -113,10 +113,16 @@ def expand_difference_tree(current_body, current_match, types, previous_body, pr
 
 
 def code_unit_changes(current_body, previous_body, node_type):
-    current, current_code = search_nodes(current_body, node_type)
-    previous, previous_code = search_nodes(previous_body, node_type)
-    current_dict = {c.name: c for c in current}
-    previous_dict = {c.name: c for c in previous}
+    if node_type is not None:
+        current, current_code = search_nodes(current_body, node_type)
+        previous, previous_code = search_nodes(previous_body, node_type)
+    else:
+        current = current_body
+        current_code = []
+        previous = previous_body
+        previous_code = []
+    current_dict = {c.name if type(c) is ast.FunctionDef or type(c) is ast.ClassDef else c.lineno: c for c in current}
+    previous_dict = {c.name if type(c) is ast.FunctionDef or type(c) is ast.ClassDef else c.lineno: c for c in previous}
     current_set = set(current_dict.keys())
     previous_set = set(previous_dict.keys())
     matching = [(current_dict[name], previous_dict[name]) for name in current_set.intersection(previous_set)]
