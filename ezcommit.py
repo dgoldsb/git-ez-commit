@@ -10,6 +10,35 @@ import time
 import numpy as np
 import praw
 import random
+import ast
+
+def add_ast(changes, script_feature, j):
+
+    if not isinstance(script_feature[j][2], list):
+        if type(script_feature[j][2]) is ast.FunctionDef or type(script_feature[j][3]) is ast.FunctionDef:
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][3].name)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][2].name)+'\n'
+        else:
+            print(type(script_feature[j][2]))
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][3]._fields)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2]._fields)+'\n'
+    else:
+        if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][3][0].name)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][2][0].name)+'\n'
+        else:
+            print(type(script_feature[j][2][0]))
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][3][0]._fields)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][2][0]._fields)+'\n'
+    return changes
 
 def breadthfirst_important_features(root_node, max_length):
     node = root_node[1]
@@ -30,7 +59,7 @@ def breadthfirst_important_features(root_node, max_length):
     # Build important_feats
     important_feats = []
     for item in important_nodes:
-        important_feats.append([script, item.value.type, item.value.current_ast_node])
+        important_feats.append([script, item.value.type, item.value.current_ast_node, item.value.previous_ast_node])
 
     return important_feats
 
@@ -152,7 +181,6 @@ def generate_commit(path, feat_count, submissions, debug):
     a = str(count_files_added)
     b = str(count_files_altered)
     c = str(count_files_removed)
-    print('\nCommit message:')
     commit_message = '[Bleep bloop automatic]\n'
     commit_message = commit_message+a+' files added, '+b+' files altered, '+c+' files removed.\n'
     d = str(total_adds)
@@ -170,19 +198,19 @@ def generate_commit(path, feat_count, submissions, debug):
                         script_feature = script_features.pop(0)
                         for j in range(0, len(script_feature)):
                             changes = changes+'- '
-                            changes = changes+'Made a '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2])+'\n'
+                            changes = add_ast(changes, script_feature, j)
 
             # Build the message
             commit_message = commit_message+script+': '+changes+'\n'
 
     commit_message = commit_message +'Showerthought of the day:\n'
     commit_message = commit_message +random.choice(submissions)
+
+    print('\nCommitting with message:')
     print(commit_message)
 
     if not debug:
         # Commit
-        print('Committing with message:')
-        print(commit_message)
         assert index.commit(commit_message).type == 'commit'
         repo.active_branch.commit = repo.commit('HEAD~1')
         author = Actor("Robot", "dgoldsb@live.nl")
