@@ -27,6 +27,7 @@ def generate_commit(path):
     repo = Repo.init(path, bare=False)
     python_scripts = find_python_scripts(path)
     diff = repo.git.diff('HEAD~0', name_only=True)
+    print(diff)
 
     for script in python_scripts:
         if script in diff:
