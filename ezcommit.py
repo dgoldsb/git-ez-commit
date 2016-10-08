@@ -20,6 +20,8 @@ def breadthfirst_important_features(root_node, max_length):
 
     while len(important_nodes) < max_length and len(important_nodes) is not 0:
         # Remove the first node
+        if important_nodes[0].children is []:
+            break
         first_node = important_nodes.pop(0)
         children = first_node.children
         while len(important_nodes) < max_length and len(children) is not 0:
@@ -82,7 +84,6 @@ def generate_commit(path, feat_count, submissions, debug):
 
 
     for script in python_scripts:
-        print("script ",script)
         if script in diff:
             print('Differences found in file ',os.path.join(path,script),', proceeding...')
             # Read the file off the disk
@@ -97,6 +98,7 @@ def generate_commit(path, feat_count, submissions, debug):
             # Update in index
             index.add([script])
             count_files_altered += 1
+            current.close()
 
         elif script in untracked:
             print('New file ',os.path.join(path,script),', adding to repo...')
@@ -112,6 +114,7 @@ def generate_commit(path, feat_count, submissions, debug):
             # Add to the index
             index.add([script])
             count_files_added += 1
+            current.close()
 
         elif script in deleted:
             print('Deleted file ',os.path.join(path,script),', removing from repo...')
@@ -149,6 +152,7 @@ def generate_commit(path, feat_count, submissions, debug):
     a = str(count_files_added)
     b = str(count_files_altered)
     c = str(count_files_removed)
+    print('\nCommit message:')
     commit_message = '[Bleep bloop automatic]\n'
     commit_message = commit_message+a+' files added, '+b+' files altered, '+c+' files removed.\n'
     d = str(total_adds)
@@ -159,18 +163,19 @@ def generate_commit(path, feat_count, submissions, debug):
         if script in diff or script in untracked:
             # Write out the changes for his one
             if len(all_important_feats) is not 0:
-                script_features = [t for t in all_important_feats if (t[0] is script)]
-                changes = '\n- '
+                script_features = [t for t in all_important_feats if (t[0][0] is script)]
+                changes = '\n'
                 for i in range(0, feat_count):
                     if len(script_features) > 0:
                         script_feature = script_features.pop(0)
-                        changes = changes+'- '
-                        changes = changes+str(script_feature[1])+' '+str(script_feature[2])
+                        for j in range(0, len(script_feature)):
+                            changes = changes+'- '
+                            changes = changes+'Made a '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2])+'\n'
 
             # Build the message
             commit_message = commit_message+script+': '+changes+'\n'
 
-    commit_message = commit_message +'\nShowerthought of the day:\n'
+    commit_message = commit_message +'Showerthought of the day:\n'
     commit_message = commit_message +random.choice(submissions)
     print(commit_message)
 
@@ -202,6 +207,10 @@ def main(argv):
     args = parser.parse_args()
     repo_path = args.repo
     feat_count = args.features
+
+    print("-------------------------------------")
+    print("| EZgit, the easiest way to GIT Gud |")
+    print("-------------------------------------\n")
 
     r = praw.Reddit(user_agent="ezcommitter")
     submissions = r.get_subreddit('showerthoughts').get_top(limit=50)
