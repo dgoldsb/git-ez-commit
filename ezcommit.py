@@ -1,8 +1,21 @@
+import hashlib
 from git import Repo
 import os
 import sys
 import argparse
 import tempfile
+from git import Actor
+
+def commit_version(repo, requested_version, commit_msg, index, version_file):
+    """
+    Commits version to index
+    """
+
+    print("Committing: ", requested_version)
+
+    index.add([version_file])
+    #repo.git.add(update=True)
+    index.commit(commit_msg)
 
 def find_python_scripts(path):
     """
@@ -22,27 +35,42 @@ def generate_commit(path):
     versus the head of the local branch
     :param path: path the repository for which to generate a commit message
     """
-    repo = Repo.init(path, bare=True)
-    assert repo.bare
+    repo = Repo.init(path, bare=False)
     python_scripts = find_python_scripts(path)
+    diff = repo.git.diff('HEAD~0', name_only=True)
 
     for script in python_scripts:
-        # Read the file off the disk
-        old = open(path+script, 'r')
+        if script in diff:
+            print('Differences found in file ',path+script,', proceeding...')
+            # Read the file off the disk
+            current = open(path+script, 'r')
 
-        # Fetch the file from the HEAD
-        #file_contents = repo.git.show(('HEAD:'+script).format(commit.hexsha, entry.path))
-        current = repo.git.show('HEAD:'+script)
+            # Fetch the file from the HEAD
+            # Template:
+            # file_contents = repo.git.show(('HEAD:'+script).format(commit.hexsha, entry.path))
+            old = repo.git.show('HEAD:'+script)
 
-        # To test
-        """
-        print('---')
-        print(current)
-        print('---')
-        print(old.read())
-        """
+            # To test
+            """
+            print('---')
+            print(current.read())
+            print('---')
+            print(old)
+            """
+        else:
+            print('No differences found in file ',path+script,', skipping...')
 
-        # Next step: compare the differences
+    # Compile message
+    commit_message = 'Testcommit please ignore.'
+
+    # Commit
+    index = repo.index
+    requested_version = 'What goes here :('
+    version_file = diff
+    commit_version(repo, requested_version, "Auto committed", index, version_file)
+
+    # Push
+    repo.remotes.origin.push
 
 def main(argv):
     """
@@ -76,3 +104,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
+    # TESTTTT
