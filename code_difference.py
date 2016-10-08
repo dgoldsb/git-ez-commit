@@ -11,9 +11,30 @@ import enum
 
 DIFFERENCE_TREE_TYPES = [ast.ClassDef, ast.FunctionDef]
 
-AST_KEY_LAMBDA = {ast.ClassDef: lambda c: c.name, ast.FunctionDef: lambda f: f.name, }
+AST_KEY_LAMBDA = {ast.ClassDef: lambda c: c.name, ast.FunctionDef: lambda f: f.name,
+                  ast.Assign: lambda a: a.targets, ast.Name: lambda n: n.id, ast.Attribute: lambda a: a.attr,
+                  ast.Expr: lambda e: e.value, ast.Str: lambda s: s.s, ast.Pass: lambda p: "pass",
+                  ast.Return: lambda r: r.value, ast.If: lambda i: i.test, ast.For: lambda t: t.target,
+                  ast.Tuple: lambda t: t.elts, ast.Import: lambda i: i.names, ast.alias: lambda a: a.name}
 
-DEFAULT_KEY_LAMBDA = lambda e: e.lineno
+def default_key_lambda(e):
+    print("Unknown type " + str(type(e)))
+    return e.lineno
+
+def generate_ast_key(node):
+    if type(node) in AST_KEY_LAMBDA:
+        result = AST_KEY_LAMBDA[type(node)](node)
+        if type(result) is ast.AST:
+            return generate_ast_key(result)
+        if type(result) is list:
+            "$".join(map(lambda n: str(generate_ast_key(n)), result))
+        else:
+            return result
+    else:
+        return default_key_lambda(node)
+
+
+
 
 class ChangeType(enum.Enum):
     add = 1
@@ -126,14 +147,8 @@ def code_unit_changes(current_body, previous_body, node_type):
         previous = previous_body
         previous_code = []
 
-    current_dict = {}
-    for c in current:
-        key_lambda = AST_KEY_LAMBDA[type(c)] if type(c) in AST_KEY_LAMBDA else DEFAULT_KEY_LAMBDA
-        current_dict[key_lambda(c)] = c
-    previous_dict = {}
-    for c in previous:
-        key_lambda = AST_KEY_LAMBDA[type(c)] if type(c) in AST_KEY_LAMBDA else DEFAULT_KEY_LAMBDA
-        previous_dict[key_lambda(c)] = c
+    current_dict = {generate_ast_key(c):c for c in current}
+    previous_dict = {generate_ast_key(c):c for c in previous}
 
     current_set = set(current_dict.keys())
     previous_set = set(previous_dict.keys())
