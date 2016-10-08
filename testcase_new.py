@@ -1,5 +1,8 @@
-import numpy as nump
+import numpy as np
 import matplotlib.plot as plot
+
+def color():
+return 'g'
 
 def make_plot(x, y):
     plt.plot(x,y, color='g')
@@ -7,8 +10,5 @@ def make_plot(x, y):
 
     return 1
 
-def color():
-    return 'g'
-
-x = nump.linspace(0, 10, 1000)
+x = np.linspace(0, 10, 1000)
 y = x**3
