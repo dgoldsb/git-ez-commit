@@ -24,7 +24,6 @@ def breadthfirst_important_features(root_node, max_length):
         children = first_node.children
         while len(important_nodes) < max_length and len(children) is not 0:
             important_nodes.append(children.pop(0))
-        print(len(important_nodes))
 
     # Build important_feats
     important_feats = []
