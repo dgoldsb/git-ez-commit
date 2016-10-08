@@ -18,7 +18,6 @@ AST_KEY_LAMBDA = {ast.ClassDef: lambda c: c.name, ast.FunctionDef: lambda f: f.n
                   ast.Tuple: lambda t: t.elts, ast.Import: lambda i: i.names, ast.alias: lambda a: a.name}
 
 def default_key_lambda(e):
-    print("Unknown type " + str(type(e)))
     return e.lineno
 
 def generate_ast_key(node):
