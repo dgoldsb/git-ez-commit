@@ -89,14 +89,27 @@ def ast_differences(root, current_body, previous_body, types):
     popped_types = types[1:]
     if len(popped_types) > 0:
         for current_match, previous_match in matching:
-            diff = Difference(ChangeType.change, current_match, previous_match)
-            diff_node = DifferenceNode(root, diff)
-            child_difference = ast_differences(diff_node, current_match.body, previous_match.body, popped_types)
+            current_body = current_match.body
+            previous_body = previous_match.body
+
+            child_difference = expand_difference_tree(current_body, current_match, popped_types, previous_body,
+                                                      previous_match, root)
+
             children_have_difference |= child_difference
-            if child_difference:
-                root.children.append(diff_node)
+
+        child_difference = expand_difference_tree(current_code, current_code, popped_types, previous_code, previous_code, root)
+        children_have_difference |= child_difference
 
     return children_have_difference or len(deleted) > 0 or len(added) > 0
+
+
+def expand_difference_tree(current_body, current_match, types, previous_body, previous_match, root):
+    diff = Difference(ChangeType.change, current_match, previous_match)
+    diff_node = DifferenceNode(root, diff)
+    child_difference = ast_differences(diff_node, current_body, previous_body, types)
+    if child_difference:
+        root.children.append(diff_node)
+    return child_difference
 
 
 def code_unit_changes(current_body, previous_body, node_type):
@@ -118,4 +131,3 @@ def generate_differences(current, previous, filename):
     root = DifferenceNode(None, None)
     ast_differences(root, current_ast.body, previous_ast.body, DIFFERENCE_TREE_TYPES)
     return root
-
