@@ -90,7 +90,7 @@ def ast_differences(root, current_body, previous_body, root_types):
 
     for current_match, previous_match in matching:
         current_body = current_match.body if "body" in current_match._fields else []
-        previous_body = previous_match.body if "body" in current_match._fields else []
+        previous_body = previous_match.body if "body" in previous_match._fields else []
 
         child_difference = expand_difference_tree(current_body, current_match, popped_types, previous_body,
                                                   previous_match, root)
