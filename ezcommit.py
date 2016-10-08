@@ -28,15 +28,21 @@ def generate_commit(path):
 
     for script in python_scripts:
         # Read the file off the disk
-        old = open(script, 'r')
+        old = open(path+script, 'r')
 
         # Fetch the file from the HEAD
         #file_contents = repo.git.show(('HEAD:'+script).format(commit.hexsha, entry.path))
         current = repo.git.show('HEAD:'+script)
 
-        #Everything
+        # To test
+        """
+        print('---')
         print(current)
-        print(old)
+        print('---')
+        print(old.read())
+        """
+
+        # Next step: compare the differences
 
 def main(argv):
     """
@@ -45,7 +51,8 @@ def main(argv):
     """
     # Get the command line arguments
     parser = argparse.ArgumentParser(description='Provide the parameters for EZcommit.')
-    parser.add_argument('-r','--repo', type=str, default=10, help='The number of timesteps.')
+    parser.add_argument('-r','--repo', type=str, help='The repository path.')
+    parser.add_argument('-b','--bunny', action='store_true', default=False, help='All hail.')
     args = parser.parse_args()
     repo_path = args.repo
 
@@ -61,7 +68,8 @@ def main(argv):
             _j _j |,'  ALL HAIL CONTENT BUNNY
            (_,(__,'
     """
-    print(content_bunny)
+    if args.bunny:
+        print(content_bunny)
 
     # EZgit initiation
     generate_commit(repo_path)
