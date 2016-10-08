@@ -59,7 +59,7 @@ def find_python_scripts(path):
 
     return python_scripts
 
-def generate_commit(path, feat_count, submissions):
+def generate_commit(path, feat_count, submissions, debug):
     """
     Generates an automatic commit message by comparing the current state
     versus the head of the local branch
@@ -71,6 +71,7 @@ def generate_commit(path, feat_count, submissions):
     diff = repo.git.diff('HEAD~0', name_only=True)
     untracked = repo.untracked_files
     deleted = []
+    z = 1
 
     # For the summary
     root_nodes = []
@@ -174,20 +175,19 @@ def generate_commit(path, feat_count, submissions):
     commit_message = commit_message +random.choice(submissions)
     print(commit_message)
 
-    '''
-    # Commit
-    print('Committing with message:')
-    print(commit_message)
-    assert index.commit(commit_message).type == 'commit'
-    repo.active_branch.commit = repo.commit('HEAD~1')
-    author = Actor("Robot", "dgoldsb@live.nl")
-    committer = Actor("Robot", "dgoldsb@live.nl")
-    # commit by commit message and author and committer
-    index.commit(commit_message, author=author, committer=committer)
+    if not debug:
+        # Commit
+        print('Committing with message:')
+        print(commit_message)
+        assert index.commit(commit_message).type == 'commit'
+        repo.active_branch.commit = repo.commit('HEAD~1')
+        author = Actor("Robot", "dgoldsb@live.nl")
+        committer = Actor("Robot", "dgoldsb@live.nl")
+        # commit by commit message and author and committer
+        index.commit(commit_message, author=author, committer=committer)
 
-    # Push
-    repo.git.push()
-    '''
+        # Push
+        repo.git.push()
 
 def main(argv):
     """
@@ -199,12 +199,13 @@ def main(argv):
     parser.add_argument('-r','--repo', type=str, help='The repository path.')
     parser.add_argument('-f','--features', type=int, default=4, help='The number of changes listed per file.')
     parser.add_argument('-b','--bunny', action='store_true', default=False, help='All hail.')
+    parser.add_argument('-d','--debug', action='store_true', default=False, help='All hail.')
     args = parser.parse_args()
     repo_path = args.repo
     feat_count = args.features
 
     r = praw.Reddit(user_agent="ezcommitter")
-    submissions = r.get_subreddit('showerthoughts').get_top(limit=20)
+    submissions = r.get_subreddit('showerthoughts').get_top(limit=50)
     titles = []
     for submission in submissions:
         titles.append(submission.title)
@@ -225,7 +226,7 @@ def main(argv):
         print(content_bunny)
 
     # EZgit initiation
-    generate_commit(repo_path, feat_count, titles)
+    generate_commit(repo_path, feat_count, titles, args.debug)
 
     """
     print('Transferring virus')
