@@ -88,7 +88,7 @@ def depthfirst_overview(adds, dels, alters, node):
     for child in node.children:
         adds, alters, dels = depthfirst_overview(adds, dels, alters, child)
 
-    return adds, alters, dels
+    return adds, dels, alters
 
 def find_python_scripts(path):
     """
