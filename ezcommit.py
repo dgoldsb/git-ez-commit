@@ -53,6 +53,7 @@ def generate_commit(path):
     commit_message = 'Bleep bloop automatic.'
 
     # Commit
+    # meh?
     git = repo.git
     git.add(update=True)
     git.commit(message=commit_message)
