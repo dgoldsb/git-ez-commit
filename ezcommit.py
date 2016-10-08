@@ -86,7 +86,7 @@ def depthfirst_overview(adds, dels, alters, node):
             alters = alters + 1
 
     for child in node.children:
-        adds, alters, dels = depthfirst_overview(adds, dels, alters, child)
+        adds, dels, alters = depthfirst_overview(adds, dels, alters, child)
 
     return adds, dels, alters
 
