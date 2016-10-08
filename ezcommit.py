@@ -11,6 +11,7 @@ import numpy as np
 import praw
 import random
 import ast
+from code_difference import ChangeType
 
 def add_ast(changes, script_feature, j):
 
@@ -78,9 +79,9 @@ def breadthfirst_important_features(root_node, max_length):
 
 def depthfirst_overview(adds, dels, alters, node):
     if node.value is not None:
-        if node.value.type == 1:
+        if node.value.type == ChangeType.add:
             adds = adds + 1
-        elif node.value.type == 2:
+        elif node.value.type == ChangeType.delete:
             dels = dels + 1
         else:
             alters = alters + 1
