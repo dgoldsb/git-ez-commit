@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.plot as plot
 
 def color():
-return 'g'
+    return 'g'
 
 def make_plot(x, y):
     plt.plot(x,y, color='g')
