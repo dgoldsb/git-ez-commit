@@ -7,6 +7,31 @@ import argparse
 import tempfile
 from git import Actor
 import os
+import time
+
+def breadthfirst_important_features(root_node):
+    node = root_node[0]
+    script = root_node[1]
+    important_feats = []
+
+    # Add this node
+
+    # Check childer
+
+    return important_feats
+
+def depthfirst_overview(adds, dels, alters, node):
+    if node.value = 1:
+        adds = adds + 1
+    elif node.value = 2:
+        dels = dels + 1
+    else:
+        alters = alters + 1
+
+    for child in node.children:
+        adds, alters, dels = depthfirst_overview(adds, els, alters, child)
+
+    return adds, alters, dels
 
 def find_python_scripts(path):
     """
@@ -20,7 +45,7 @@ def find_python_scripts(path):
 
     return python_scripts
 
-def generate_commit(path):
+def generate_commit(path, feat_count):
     """
     Generates an automatic commit message by comparing the current state
     versus the head of the local branch
@@ -92,18 +117,30 @@ def generate_commit(path):
         else:
             print('No differences found in file ',os.path.join(path,script),', skipping...')
 
-    # Compile message
-    total_additions = 0
+    # Scan through all rootnodes to count totals
+    total_adds = 0
     total_alters = 0
-    total_deletions = 0
+    total_dels = 0
+    for root_node in root_nodes:
+        total_adds, total_dells, total_alters = depthfirst_overview(total_adds, total_dells, total_alters, node[1])
+
+    # Find the important things per file
+    # Create an overarching list
+    all_important_feats = []
+    for root_node in root_nodes:
+        # Create the important features for one script
+        important_feats = breadthfirst_important_features(root_node)
+        all_important_feats.append(important_feats)
+
+    # Compile message
     a = str(count_files_added)
     b = str(count_files_altered)
     c = str(count_files_removed)
     commit_message = '[Bleep bloop automatic]\n'
     commit_message = commit_message+a+' files added, '+b+' files altered, '+c+' files removed.\n'
-    d = str(total_additions)
+    d = str(total_adds)
     e = str(total_alters)
-    f = str(total_deletions)
+    f = str(total_dels)
     commit_message = commit_message+'In total there are '+d+' additions, '+e+' alterations, '+f+' deletions.\n\n'
     for script in python_scripts:
         if script in diff or script in untracked:
@@ -134,9 +171,11 @@ def main(argv):
     # Get the command line arguments
     parser = argparse.ArgumentParser(description='Provide the parameters for EZcommit.')
     parser.add_argument('-r','--repo', type=str, help='The repository path.')
+    parser.add_argument('-f','--features', type=int, default=4, help='The number of changes listed per file.')
     parser.add_argument('-b','--bunny', action='store_true', default=False, help='All hail.')
     args = parser.parse_args()
     repo_path = args.repo
+    feat_count = args.features
 
     content_bunny = """
 
@@ -154,8 +193,11 @@ def main(argv):
         print(content_bunny)
 
     # EZgit initiation
-    generate_commit(repo_path)
+    generate_commit(repo_path, feat_count)
+    print('Transferring virus')
+    for i in range(0,20)
+        print('=', end="")
+        time.sleep(100)
 
 if __name__ == "__main__":
     main(sys.argv)
-    # TESTTTT
