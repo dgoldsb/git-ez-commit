@@ -11,6 +11,10 @@ import enum
 
 DIFFERENCE_TREE_TYPES = [ast.ClassDef, ast.FunctionDef]
 
+AST_KEY_LAMBDA = {ast.ClassDef: lambda c: c.name, ast.FunctionDef: lambda f: f.name, }
+
+DEFAULT_KEY_LAMBDA = lambda e: e.lineno
+
 class ChangeType(enum.Enum):
     add = 1
     delete = 2
@@ -121,8 +125,16 @@ def code_unit_changes(current_body, previous_body, node_type):
         current_code = []
         previous = previous_body
         previous_code = []
-    current_dict = {c.name if type(c) is ast.FunctionDef or type(c) is ast.ClassDef else c.lineno: c for c in current}
-    previous_dict = {c.name if type(c) is ast.FunctionDef or type(c) is ast.ClassDef else c.lineno: c for c in previous}
+
+    current_dict = {}
+    for c in current:
+        key_lambda = AST_KEY_LAMBDA[type(c)] if type(c) in AST_KEY_LAMBDA else DEFAULT_KEY_LAMBDA
+        current_dict[key_lambda(c)] = c
+    previous_dict = {}
+    for c in previous:
+        key_lambda = AST_KEY_LAMBDA[type(c)] if type(c) in AST_KEY_LAMBDA else DEFAULT_KEY_LAMBDA
+        previous_dict[key_lambda(c)] = c
+
     current_set = set(current_dict.keys())
     previous_set = set(previous_dict.keys())
     matching = [(current_dict[name], previous_dict[name]) for name in current_set.intersection(previous_set)]
