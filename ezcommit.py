@@ -31,9 +31,9 @@ def add_ast(changes, script_feature, j):
         else:
             print(type(script_feature[j][2]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(type(script_feature[j][3]))+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][3].__name__)+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(type(script_feature[j][2]))+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2].__name__)+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
     else:
         if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
@@ -48,9 +48,9 @@ def add_ast(changes, script_feature, j):
         else:
             print(type(script_feature[j][2][0]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(type(script_feature[j][3][0]))+' at lineno. '+str(script_feature[j][3][0].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][3][0].__name__)+' at lineno. '+str(script_feature[j][3][0].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(type(script_feature[j][2][0]))+' at lineno. '+str(script_feature[j][2][0].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][2][0].__name__)+' at lineno. '+str(script_feature[j][2][0].lineno)+'\n'
     return changes
 
 def breadthfirst_important_features(root_node, max_length):
@@ -62,10 +62,10 @@ def breadthfirst_important_features(root_node, max_length):
 
     while len(important_nodes) < max_length and len(important_nodes) is not 0:
         # Remove the first node
-        if important_nodes[0].children is []:
+        if not important_nodes[0].children:
             break
         first_node = important_nodes.pop(0)
-        children = first_node.children
+        children = first_node.children[:]
         while len(important_nodes) < max_length and len(children) is not 0:
             important_nodes.append(children.pop(0))
 
@@ -207,10 +207,7 @@ def generate_commit(path, feat_count, submissions, debug):
         if script in diff or script in untracked:
             # Write out the changes for his one
             if len(all_important_feats) is not 0:
-                try:
-                    script_features = [t for t in all_important_feats if (t[0][0] is script)]
-                except:
-                    script_features = [t for t in all_important_feats if (t[0] is script)]
+                script_features = [t for t in all_important_feats if (t[0][0] is script)]
                 changes = '\n'
                 for i in range(0, feat_count):
                     if len(script_features) > 0:
