@@ -1,3 +1,4 @@
+from code_difference import generate_differences
 import hashlib
 from git import Repo
 import os
@@ -33,6 +34,7 @@ def generate_commit(path):
     deleted = []
 
     # For the summary
+    root_nodes = []
     count_files_altered = 0
     count_files_added = 0
     count_files_removed = 0
@@ -40,9 +42,6 @@ def generate_commit(path):
     # Get the index
     index = repo.index
 
-    for script in deleted:
-        index.remove(os.path.join(repo.working_tree_dir, script))
-        count_files_removed += 1
 
     for script in python_scripts:
         print("script ",script)
@@ -50,11 +49,12 @@ def generate_commit(path):
             print('Differences found in file ',path+script,', proceeding...')
             # Read the file off the disk
             current = open(path+script, 'r')
-
             # Fetch the file from the HEAD
             old = repo.git.show('HEAD:'+script)
 
             # Add new element to the commit message
+            root_node = generate_differences(current, old, script)
+            root_nodes.append([script, root_node])
 
             # Update in index
             index.add([script])
@@ -64,14 +64,30 @@ def generate_commit(path):
             print('New file ',path+script,', adding to repo...')
             # Read the file off the disk
             current = open(path+script, 'r')
-
-            old = ['']
+            # Head is empty
+            old = ''
 
             # Add new element to the commit message
+            root_node = generate_differences(current, old, script)
+            root_nodes.append([script, root_node])
 
             # Add to the index
             index.add([script])
             count_files_added += 1
+
+        elif script in deleted:
+            print('Deleted file ',path+script,', removing from repo...')
+            # File on disk is empty
+            current = ''
+            # Fetch the file from the HEAD
+            old = repo.git.show('HEAD:'+script)
+
+            # Add new element to the commit message
+            root_node = generate_differences(current, old, script)
+            root_nodes.append([script, root_node])
+
+            index.remove(os.path.join(repo.working_tree_dir, script))
+            count_files_removed += 1
 
         else:
             print('No differences found in file ',path+script,', skipping...')
