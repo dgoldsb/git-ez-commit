@@ -6,8 +6,8 @@ import sys
 import argparse
 import tempfile
 from git import Actor
-import os
 import time
+import numpy as np
 
 def breadthfirst_important_features(root_node):
     node = root_node[0]
@@ -21,12 +21,13 @@ def breadthfirst_important_features(root_node):
     return important_feats
 
 def depthfirst_overview(adds, dels, alters, node):
-    if node.value.type == 1:
-        adds = adds + 1
-    elif node.value.type == 2:
-        dels = dels + 1
-    else:
-        alters = alters + 1
+    if node.value is not None:
+        if node.value.type == 1:
+            adds = adds + 1
+        elif node.value.type == 2:
+            dels = dels + 1
+        else:
+            alters = alters + 1
 
     for child in node.children:
         adds, alters, dels = depthfirst_overview(adds, els, alters, child)
@@ -122,7 +123,7 @@ def generate_commit(path, feat_count):
     total_alters = 0
     total_dels = 0
     for root_node in root_nodes:
-        total_adds, total_dells, total_alters = depthfirst_overview(total_adds, total_dells, total_alters, node[1])
+        total_adds, total_dels, total_alters = depthfirst_overview(total_adds, total_dels, total_alters, root_node[1])
 
     # Find the important things per file
     # Create an overarching list
@@ -197,7 +198,9 @@ def main(argv):
     print('Transferring virus')
     for i in range(0,20):
         print('=', end="")
-        time.sleep(100)
+        sys.stdout.flush()
+        time.sleep(abs(np.random.normal(0.5, 0.3)))
+    print('')
 
 if __name__ == "__main__":
     main(sys.argv)
