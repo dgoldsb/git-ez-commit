@@ -24,16 +24,16 @@ def add_ast(changes, script_feature, j):
         # elif class ClassDef .name
         elif type(script_feature[j][2]) is ast.ClassDef or type(script_feature[j][3]) is ast.ClassDef:
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][3].name)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in class '+str(script_feature[j][3].name)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][2].name)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in class '+str(script_feature[j][2].name)+'\n'
         # else
         else:
             print(type(script_feature[j][2]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+type(script_feature[j][3]).__name__+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in '+type(script_feature[j][3]).__name__+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+type(script_feature[j][2]).__name__+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in '+type(script_feature[j][2]).__name__+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
     else:
         if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
@@ -42,9 +42,9 @@ def add_ast(changes, script_feature, j):
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][2][0].name)+'\n'
         elif type(script_feature[j][2][0]) is ast.ClassDef or type(script_feature[j][3][0]) is ast.ClassDef:
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][3][0].name)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in class '+str(script_feature[j][3][0].name)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][2][0].name)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in class '+str(script_feature[j][2][0].name)+'\n'
         else:
             print(type(script_feature[j][2][0]))
             if str(script_feature[j][1].name) is 'delete':
