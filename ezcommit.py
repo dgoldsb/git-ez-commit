@@ -32,13 +32,18 @@ def generate_commit(path):
     untracked = repo.untracked_files
     deleted = []
 
+    # For the summary
+    count_files_altered = 0
+    count_files_added = 0
+    count_files_removed = 0
+
     # Get the index
     index = repo.index
 
     for script in deleted:
         index.remove(os.path.join(repo.working_tree_dir, script))
+        count_files_removed += 1
 
-    print(python_scripts)
     for script in python_scripts:
         print("script ",script)
         if script in diff:
@@ -53,6 +58,8 @@ def generate_commit(path):
 
             # Update in index
             index.add([script])
+            count_files_altered += 1
+
         elif script in untracked:
             print('New file ',path+script,', adding to repo...')
             # Read the file off the disk
@@ -64,13 +71,34 @@ def generate_commit(path):
 
             # Add to the index
             index.add([script])
+            count_files_added += 1
+
         else:
             print('No differences found in file ',path+script,', skipping...')
 
     # Compile message
-    commit_message = 'Bleep bloop automatic'
+    total_additions = 0
+    total_alters = 0
+    total_deletions = 0
+    a = str(count_files_added)
+    b = str(count_files_altered)
+    c = str(count_files_removed)
+    commit_message = '[Bleep bloop automatic]\n'
+    commit_message = commit_message+a+' files added, '+b+' files altered, '+c+' files removed.\n'
+    d = str(total_additions)
+    e = str(total_alters)
+    f = str(total_deletions)
+    commit_message = commit_message+'In total there are '+d+' additions, '+e+' alterations, '+f+' deletions.\n\n'
+    for script in python_scripts:
+        if script in diff or script in untracked:
+            commit_message = commit_message+script+': '+'changes\n'
 
+    print(commit_message)
+
+    '''
     # Commit
+    print('Committing with message:')
+    print(commit_message)
     assert index.commit(commit_message).type == 'commit'
     repo.active_branch.commit = repo.commit('HEAD~1')
     author = Actor("Robot", "dgoldsb@live.nl")
@@ -80,6 +108,7 @@ def generate_commit(path):
 
     # Push
     repo.git.push()
+    '''
 
 def main(argv):
     """
