@@ -6,17 +6,6 @@ import argparse
 import tempfile
 from git import Actor
 
-def commit_version(repo, requested_version, commit_msg, index, version_file):
-    """
-    Commits version to index
-    """
-
-    print("Committing: ", requested_version)
-
-    index.add([version_file])
-    #repo.git.add(update=True)
-    index.commit(commit_msg)
-
 def find_python_scripts(path):
     """
     Find all python script names in a directory
@@ -64,11 +53,6 @@ def generate_commit(path):
     commit_message = 'Bleep bloop automatic.'
 
     # Commit
-    #index = repo.index
-    #requested_version = 'What goes here :('
-    #version_file = diff
-    #commit_version(repo, requested_version, "Auto committed", index, version_file)
-
     git = repo.git
     git.add(update=True)
     git.commit(message=commit_message)
