@@ -80,7 +80,6 @@ def generate_commit(path):
 
     # Push
     repo.git.push()
-    # repo.remotes.origin.push
 
 def main(argv):
     """
