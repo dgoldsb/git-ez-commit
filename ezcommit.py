@@ -207,7 +207,10 @@ def generate_commit(path, feat_count, submissions, debug):
         if script in diff or script in untracked:
             # Write out the changes for his one
             if len(all_important_feats) is not 0:
-                script_features = [t for t in all_important_feats if (t[0][0] is script)]
+                try:
+                    script_features = [t for t in all_important_feats if (t[0][0] is script)]
+                except:
+                    script_features = [t for t in all_important_feats if (t[0] is script)]
                 changes = '\n'
                 for i in range(0, feat_count):
                     if len(script_features) > 0:
