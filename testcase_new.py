@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.plot as plot
 
+class bunny():
+    pass
+
 def color():
     return 'g'
 
