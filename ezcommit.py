@@ -24,11 +24,12 @@ def breadthfirst_important_features(root_node, max_length):
         children = first_node.children
         while len(important_nodes) < max_length and len(children) is not 0:
             important_nodes.append(children.pop(0))
+        print(len(important_nodes))
 
     # Build important_feats
     important_feats = []
     for item in important_nodes:
-        important_feats.append([script, node.value.type, node.value.current_ast_node])
+        important_feats.append([script, item.value.type, item.value.current_ast_node])
 
     return important_feats
 
@@ -42,7 +43,7 @@ def depthfirst_overview(adds, dels, alters, node):
             alters = alters + 1
 
     for child in node.children:
-        adds, alters, dels = depthfirst_overview(adds, els, alters, child)
+        adds, alters, dels = depthfirst_overview(adds, dels, alters, child)
 
     return adds, alters, dels
 
@@ -157,7 +158,17 @@ def generate_commit(path, feat_count, submissions):
     commit_message = commit_message+'In total there are '+d+' additions, '+e+' alterations, '+f+' deletions.\n\n'
     for script in python_scripts:
         if script in diff or script in untracked:
-            commit_message = commit_message+script+': '+'changes\n'
+            # Write out the changes for his one
+            script_features = [t for t in all_important_feats if (t[0] is script)]
+            changes = '\n- '
+            for i in range(0, feat_count):
+                if len(script_features) > 0:
+                    script_feature = script_features.pop(0)
+                    changes = changes+'- '
+                    changes = changes+str(script_feature[1])+' '+str(script_feature[2])
+
+            # Build the message
+            commit_message = commit_message+script+': '+changes+'\n'
 
     commit_message = commit_message +'\nShowerthought of the day:\n'
     commit_message = commit_message +random.choice(submissions)
