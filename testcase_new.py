@@ -7,5 +7,8 @@ def make_plot(x, y):
 
     return 1
 
+def color():
+    return 'g'
+
 x = nump.linspace(0, 10, 1000)
 y = x**3
