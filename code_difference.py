@@ -27,7 +27,7 @@ def generate_ast_key(node):
         if type(result) is ast.AST:
             return generate_ast_key(result)
         if type(result) is list:
-            "$".join(map(lambda n: str(generate_ast_key(n)), result))
+            return "$".join(map(lambda n: str(generate_ast_key(n)), result))
         else:
             return result
     else:
