@@ -24,12 +24,18 @@ def generate_commit(path):
     versus the head of the local branch
     :param path: path the repository for which to generate a commit message
     """
-    repo = Repo.init(path, bare=False)
+    repo = Repo.init(path)
+    #assert not repo.bare
     python_scripts = find_python_scripts(path)
     diff = repo.git.diff('HEAD~0', name_only=True)
     untracked = repo.untracked_files
-    print(diff)
-    print(untracked)
+    deleted = []
+
+    # Get the index
+    index = repo.index
+
+    for script in deleted:
+        index.remove(path+script)
 
     for script in python_scripts:
         if script in diff:
@@ -38,17 +44,23 @@ def generate_commit(path):
             current = open(path+script, 'r')
 
             # Fetch the file from the HEAD
-            # Template:
-            # file_contents = repo.git.show(('HEAD:'+script).format(commit.hexsha, entry.path))
             old = repo.git.show('HEAD:'+script)
 
-            # To test
-            """
-            print('---')
-            print(current.read())
-            print('---')
-            print(old)
-            """
+            # Add new element to the commit message
+
+            # Update in index
+            index.add(path+script)
+        elif script in untracked:
+            print('New file ',path+script,', adding to repo...')
+            # Read the file off the disk
+            current = open(path+script, 'r')
+
+            old = ['']
+
+            # Add new element to the commit message
+
+            # Add to the index
+            index.add(path+script)
         else:
             print('No differences found in file ',path+script,', skipping...')
 
@@ -56,10 +68,12 @@ def generate_commit(path):
     commit_message = 'Bleep bloop automatic.'
 
     # Commit
-    # meh?
-    git = repo.git
-    git.add(update=True)
-    git.commit(message=commit_message)
+    assert index.commit(commit_message).type == 'commit'
+    repo.active_branch.commit = repo.commit('HEAD~1')
+    author = Actor("An author", "author@example.com")
+    committer = Actor("A committer", "committer@example.com")
+    # commit by commit message and author and committer
+    index.commit(commit_message, author=author, committer=committer)
 
     # Push
     repo.remotes.origin.push
