@@ -17,13 +17,13 @@ def add_ast(changes, script_feature, j):
 
     if not isinstance(script_feature[j][2], list):
         # if function FunctionDef .name
-        if type(script_feature[j][2]) is ast.FunctionDef or type(script_feature[j][3]) is ast.FunctionDef:
+        if type(script_feature[j][2]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][3].name)+'\n'
             else:
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][2].name)+'\n'
         # elif class ClassDef .name
-        elif type(script_feature[j][2]) is ast.ClassDef or type(script_feature[j][3]) is ast.ClassDef:
+        elif type(script_feature[j][2]) is ast.ClassDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in class '+str(script_feature[j][3].name)+'\n'
             else:
@@ -36,12 +36,12 @@ def add_ast(changes, script_feature, j):
             else:
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in '+type(script_feature[j][2]).__name__+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
     else:
-        if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
+        if type(script_feature[j][2][0]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][3][0].name)+'\n'
             else:
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][2][0].name)+'\n'
-        elif type(script_feature[j][2][0]) is ast.ClassDef or type(script_feature[j][3][0]) is ast.ClassDef:
+        elif type(script_feature[j][2][0]) is ast.ClassDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in class '+str(script_feature[j][3][0].name)+'\n'
             else:
