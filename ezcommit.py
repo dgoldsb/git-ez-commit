@@ -31,9 +31,9 @@ def add_ast(changes, script_feature, j):
         else:
             print(type(script_feature[j][2]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][3].__name__)+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+type(script_feature[j][3]).__name__+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2].__name__)+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+type(script_feature[j][2]).__name__+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
     else:
         if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
@@ -48,9 +48,9 @@ def add_ast(changes, script_feature, j):
         else:
             print(type(script_feature[j][2][0]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][3][0].__name__)+' at lineno. '+str(script_feature[j][3][0].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+type(script_feature[j][3][0]).__name__+' at lineno. '+str(script_feature[j][3][0].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][2][0].__name__)+' at lineno. '+str(script_feature[j][2][0].lineno)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+type(script_feature[j][2][0]).__name__+' at lineno. '+str(script_feature[j][2][0].lineno)+'\n'
     return changes
 
 def breadthfirst_important_features(root_node, max_length):
