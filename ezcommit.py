@@ -15,19 +15,32 @@ import ast
 def add_ast(changes, script_feature, j):
 
     if not isinstance(script_feature[j][2], list):
+        # if function FunctionDef .name
         if type(script_feature[j][2]) is ast.FunctionDef or type(script_feature[j][3]) is ast.FunctionDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][3].name)+'\n'
             else:
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][2].name)+'\n'
+        # elif class ClassDef .name
+        elif type(script_feature[j][2]) is ast.ClassDef or type(script_feature[j][3]) is ast.ClassDef:
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][3].name)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in function '+str(script_feature[j][2].name)+'\n'
+        # else
         else:
             print(type(script_feature[j][2]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][3]._fields)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(type(script_feature[j][3]))+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(script_feature[j][2]._fields)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in a '+str(type(script_feature[j][2]))+' at lineno. '+str(script_feature[j][2].lineno)+'\n'
     else:
         if type(script_feature[j][2][0]) is ast.FunctionDef or type(script_feature[j][3][0]) is ast.FunctionDef:
+            if str(script_feature[j][1].name) is 'delete':
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][3][0].name)+'\n'
+            else:
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][2][0].name)+'\n'
+        elif type(script_feature[j][2][0]) is ast.ClassDef or type(script_feature[j][3][0]) is ast.ClassDef:
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in function '+str(script_feature[j][3][0].name)+'\n'
             else:
@@ -35,9 +48,9 @@ def add_ast(changes, script_feature, j):
         else:
             print(type(script_feature[j][2][0]))
             if str(script_feature[j][1].name) is 'delete':
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][3][0]._fields)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(type(script_feature[j][3][0]))+' at lineno. '+str(script_feature[j][3][0].lineno)+'\n'
             else:
-                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(script_feature[j][2][0]._fields)+'\n'
+                changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+str(type(script_feature[j][2][0]))+' at lineno. '+str(script_feature[j][2][0].lineno)+'\n'
     return changes
 
 def breadthfirst_important_features(root_node, max_length):
@@ -111,9 +124,10 @@ def generate_commit(path, feat_count, submissions, debug):
     # Get the index
     index = repo.index
 
-
+    commit = False
     for script in python_scripts:
         if script in diff:
+            commit = True
             print('Differences found in file ',os.path.join(path,script),', proceeding...')
             # Read the file off the disk
             current = open(os.path.join(path,script), 'r')
@@ -130,6 +144,7 @@ def generate_commit(path, feat_count, submissions, debug):
             current.close()
 
         elif script in untracked:
+            commit = True
             print('New file ',os.path.join(path,script),', adding to repo...')
             # Read the file off the disk
             current = open(os.path.join(path,script), 'r')
@@ -146,6 +161,7 @@ def generate_commit(path, feat_count, submissions, debug):
             current.close()
 
         elif script in deleted:
+            commit = True
             print('Deleted file ',os.path.join(path,script),', removing from repo...')
             # File on disk is empty
             current = ''
@@ -209,7 +225,7 @@ def generate_commit(path, feat_count, submissions, debug):
     print('\nCommitting with message:')
     print(commit_message)
 
-    if not debug:
+    if commit and not debug:
         # Commit
         assert index.commit(commit_message).type == 'commit'
         repo.active_branch.commit = repo.commit('HEAD~1')
