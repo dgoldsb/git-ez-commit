@@ -21,9 +21,9 @@ def breadthfirst_important_features(root_node):
     return important_feats
 
 def depthfirst_overview(adds, dels, alters, node):
-    if node.value = 1:
+    if node.value.type == 1:
         adds = adds + 1
-    elif node.value = 2:
+    elif node.value.type == 2:
         dels = dels + 1
     else:
         alters = alters + 1
@@ -195,7 +195,7 @@ def main(argv):
     # EZgit initiation
     generate_commit(repo_path, feat_count)
     print('Transferring virus')
-    for i in range(0,20)
+    for i in range(0,20):
         print('=', end="")
         time.sleep(100)
 
