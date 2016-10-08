@@ -5,6 +5,7 @@ import sys
 import argparse
 import tempfile
 from git import Actor
+import os
 
 def find_python_scripts(path):
     """
@@ -35,9 +36,11 @@ def generate_commit(path):
     index = repo.index
 
     for script in deleted:
-        index.remove(path+script)
+        index.remove(os.path.join(repo.working_tree_dir, script))
 
+    print(python_scripts)
     for script in python_scripts:
+        print("script ",script)
         if script in diff:
             print('Differences found in file ',path+script,', proceeding...')
             # Read the file off the disk
@@ -49,7 +52,7 @@ def generate_commit(path):
             # Add new element to the commit message
 
             # Update in index
-            index.add(path+script)
+            index.add([script])
         elif script in untracked:
             print('New file ',path+script,', adding to repo...')
             # Read the file off the disk
@@ -60,7 +63,7 @@ def generate_commit(path):
             # Add new element to the commit message
 
             # Add to the index
-            index.add(path+script)
+            index.add([script])
         else:
             print('No differences found in file ',path+script,', skipping...')
 
