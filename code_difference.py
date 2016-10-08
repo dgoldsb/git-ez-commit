@@ -9,6 +9,7 @@ Terminology:
 import ast
 import enum
 
+DIFFERENCE_TREE_TYPES = [ast.ClassDef, ast.FunctionDef]
 
 class ChangeType(enum.Enum):
     add = 1
@@ -40,6 +41,9 @@ class Difference(object):
         self.previous_ast_node = previous_ast_node
         self.current_ast_node = current_ast_node
 
+    def test(self):
+        pass
+
 
 def find_ast_node(tree, node_name):
     pass
@@ -66,51 +70,52 @@ def search_nodes(tree_body, object_type):
     return top_level, not_object_type_code
 
 
-def ast_differences(current_ast, previous_ast):
-    root = DifferenceNode(None, None)
+def ast_differences(root, current_body, previous_body, types):
+    added, current_code, deleted, previous_code, matching = \
+        code_unit_changes(current_body, previous_body, types[0])
 
-    current_classes, current_non_class_code = search_nodes(current_ast.body, ast.ClassDef)
-    previous_classes, previous_non_class_code = search_nodes(previous_ast.body, ast.ClassDef)
+    for n in deleted:
+        diff = Difference(ChangeType.delete, n, None)
+        diff_node = DifferenceNode(root, diff)
+        root.children.append(diff_node)
 
-    current_classes_dict = {c.name:c for c in current_classes}
-    previous_classes_dict = {c.name:c for c in previous_classes}
+    for n in added:
+        diff = Difference(ChangeType.add, None, n)
+        diff_node = DifferenceNode(root, diff)
+        root.children.append(diff_node)
 
-    current_set = set(current_classes_dict.keys())
-    previous_set = set(previous_classes_dict.keys())
+    children_have_difference = False
 
-    matching_classes = [current_classes_dict[name] for name in current_set.intersection(previous_set)]
-    deleted_classes = [previous_classes_dict[name] for name in previous_set.difference(current_set)]
-    added_classes = [current_classes_dict[name] for name in current_set.difference(previous_set)]
+    popped_types = types[1:]
+    if len(popped_types) > 0:
+        for current_match, previous_match in matching:
+            diff = Difference(ChangeType.change, current_match, previous_match)
+            diff_node = DifferenceNode(root, diff)
+            child_difference = ast_differences(diff_node, current_match.body, previous_match.body, popped_types)
+            children_have_difference |= child_difference
+            if child_difference:
+                root.children.append(diff_node)
 
-
-    class_differences = []
-    for n in deleted_classes:
-        class_differences.append(Difference(ChangeType.delete, n, None))
-
-    for n in added_classes:
-        class_differences.append(Difference(ChangeType.add, None, n))
-
-    for diff in class_differences:
-        node = DifferenceNode(root, diff)
-        root.children.append(node)
-
-
-    # Search for matching functions
+    return children_have_difference or len(deleted) > 0 or len(added) > 0
 
 
-    # Create list of differences
-
-    return root
+def code_unit_changes(current_body, previous_body, node_type):
+    current, current_code = search_nodes(current_body, node_type)
+    previous, previous_code = search_nodes(previous_body, node_type)
+    current_dict = {c.name: c for c in current}
+    previous_dict = {c.name: c for c in previous}
+    current_set = set(current_dict.keys())
+    previous_set = set(previous_dict.keys())
+    matching = [(current_dict[name], previous_dict[name]) for name in current_set.intersection(previous_set)]
+    deleted = [previous_dict[name] for name in previous_set.difference(current_set)]
+    added = [current_dict[name] for name in current_set.difference(previous_set)]
+    return added, current_code, deleted, previous_code, matching
 
 
 def generate_differences(current, previous, filename):
     current_ast = generate_ast(current, filename)
     previous_ast = generate_ast(previous, filename)
-    return ast_differences(current_ast, previous_ast)
-
-
-if __name__=="__main__":
-    c = open("code_difference.py", "r")
-
-    generate_differences(c.read(), "", "code_difference.py")
+    root = DifferenceNode(None, None)
+    ast_differences(root, current_ast.body, previous_ast.body, DIFFERENCE_TREE_TYPES)
+    return root
 
