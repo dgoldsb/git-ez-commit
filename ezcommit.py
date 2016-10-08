@@ -8,15 +8,27 @@ import tempfile
 from git import Actor
 import time
 import numpy as np
+import praw
+import random
 
-def breadthfirst_important_features(root_node):
-    node = root_node[0]
-    script = root_node[1]
+def breadthfirst_important_features(root_node, max_length):
+    node = root_node[1]
+    script = root_node[0]
+
+    # Add the root node
+    important_nodes = [node]
+
+    while len(important_nodes) < max_length and len(important_nodes) is not 0:
+        # Remove the first node
+        first_node = important_nodes.pop(0)
+        children = first_node.children
+        while len(important_nodes) < max_length and len(children) is not 0:
+            important_nodes.append(children.pop(0))
+
+    # Build important_feats
     important_feats = []
-
-    # Add this node
-
-    # Check childer
+    for item in important_nodes:
+        important_feats.append([script, node.value.type, node.value.current_ast_node])
 
     return important_feats
 
@@ -46,7 +58,7 @@ def find_python_scripts(path):
 
     return python_scripts
 
-def generate_commit(path, feat_count):
+def generate_commit(path, feat_count, submissions):
     """
     Generates an automatic commit message by comparing the current state
     versus the head of the local branch
@@ -130,7 +142,7 @@ def generate_commit(path, feat_count):
     all_important_feats = []
     for root_node in root_nodes:
         # Create the important features for one script
-        important_feats = breadthfirst_important_features(root_node)
+        important_feats = breadthfirst_important_features(root_node, feat_count)
         all_important_feats.append(important_feats)
 
     # Compile message
@@ -147,6 +159,8 @@ def generate_commit(path, feat_count):
         if script in diff or script in untracked:
             commit_message = commit_message+script+': '+'changes\n'
 
+    commit_message = commit_message +'\nShowerthought of the day:\n'
+    commit_message = commit_message +random.choice(submissions)
     print(commit_message)
 
     '''
@@ -178,6 +192,12 @@ def main(argv):
     repo_path = args.repo
     feat_count = args.features
 
+    r = praw.Reddit(user_agent="ezcommitter")
+    submissions = r.get_subreddit('showerthoughts').get_top(limit=20)
+    titles = []
+    for submission in submissions:
+        titles.append(submission.title)
+
     content_bunny = """
 
            ,.   ,.
@@ -194,13 +214,16 @@ def main(argv):
         print(content_bunny)
 
     # EZgit initiation
-    generate_commit(repo_path, feat_count)
+    generate_commit(repo_path, feat_count, titles)
+
+    """
     print('Transferring virus')
     for i in range(0,20):
         print('=', end="")
         sys.stdout.flush()
         time.sleep(abs(np.random.normal(0.5, 0.3)))
     print('')
+    """
 
 if __name__ == "__main__":
     main(sys.argv)
