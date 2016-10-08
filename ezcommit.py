@@ -30,7 +30,6 @@ def add_ast(changes, script_feature, j):
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in class '+str(script_feature[j][2].name)+'\n'
         # else
         else:
-            print(type(script_feature[j][2]))
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in '+type(script_feature[j][3]).__name__+' at lineno. '+str(script_feature[j][3].lineno)+'\n'
             else:
@@ -47,7 +46,6 @@ def add_ast(changes, script_feature, j):
             else:
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in class '+str(script_feature[j][2][0].name)+'\n'
         else:
-            print(type(script_feature[j][2][0]))
             if str(script_feature[j][1].name) is 'delete':
                 changes = changes+'Made '+str(script_feature[j][1].name)+' in the main, amongst others in '+type(script_feature[j][3][0]).__name__+'\n'
             else:
