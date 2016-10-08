@@ -68,18 +68,18 @@ def generate_commit(path):
             print('No differences found in file ',path+script,', skipping...')
 
     # Compile message
-    commit_message = 'Bleep bloop automatic.'
+    commit_message = 'Bleep bloop automatic'
 
     # Commit
     assert index.commit(commit_message).type == 'commit'
     repo.active_branch.commit = repo.commit('HEAD~1')
-    author = Actor("An author", "author@example.com")
-    committer = Actor("A committer", "committer@example.com")
+    author = Actor("Robot", "dgoldsb@live.nl")
+    committer = Actor("Robot", "dgoldsb@live.nl")
     # commit by commit message and author and committer
     index.commit(commit_message, author=author, committer=committer)
 
     # Push
-    repo.remotes.origin.push
+    # repo.remotes.origin.push
 
 def main(argv):
     """
