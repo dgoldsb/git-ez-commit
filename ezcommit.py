@@ -61,13 +61,17 @@ def generate_commit(path):
             print('No differences found in file ',path+script,', skipping...')
 
     # Compile message
-    commit_message = 'Testcommit please ignore.'
+    commit_message = 'Bleep bloop automatic.'
 
     # Commit
-    index = repo.index
-    requested_version = 'What goes here :('
-    version_file = diff
-    commit_version(repo, requested_version, "Auto committed", index, version_file)
+    #index = repo.index
+    #requested_version = 'What goes here :('
+    #version_file = diff
+    #commit_version(repo, requested_version, "Auto committed", index, version_file)
+
+    git = repo.git
+    git.add(update=True)
+    git.commit(message=commit_message)
 
     # Push
     repo.remotes.origin.push
