@@ -46,14 +46,14 @@ def generate_commit(path):
     for script in python_scripts:
         print("script ",script)
         if script in diff:
-            print('Differences found in file ',path+script,', proceeding...')
+            print('Differences found in file ',os.path.join(path,script),', proceeding...')
             # Read the file off the disk
-            current = open(path+script, 'r')
+            current = open(os.path.join(path,script), 'r')
             # Fetch the file from the HEAD
             old = repo.git.show('HEAD:'+script)
 
             # Add new element to the commit message
-            root_node = generate_differences(current, old, script)
+            root_node = generate_differences(current.read(), old, script)
             root_nodes.append([script, root_node])
 
             # Update in index
@@ -61,14 +61,14 @@ def generate_commit(path):
             count_files_altered += 1
 
         elif script in untracked:
-            print('New file ',path+script,', adding to repo...')
+            print('New file ',os.path.join(path,script),', adding to repo...')
             # Read the file off the disk
-            current = open(path+script, 'r')
+            current = open(os.path.join(path,script), 'r')
             # Head is empty
             old = ''
 
             # Add new element to the commit message
-            root_node = generate_differences(current, old, script)
+            root_node = generate_differences(current.read(), old, script)
             root_nodes.append([script, root_node])
 
             # Add to the index
@@ -76,7 +76,7 @@ def generate_commit(path):
             count_files_added += 1
 
         elif script in deleted:
-            print('Deleted file ',path+script,', removing from repo...')
+            print('Deleted file ',os.path.join(path,script),', removing from repo...')
             # File on disk is empty
             current = ''
             # Fetch the file from the HEAD
@@ -90,7 +90,7 @@ def generate_commit(path):
             count_files_removed += 1
 
         else:
-            print('No differences found in file ',path+script,', skipping...')
+            print('No differences found in file ',os.path.join(path,script),', skipping...')
 
     # Compile message
     total_additions = 0
