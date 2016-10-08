@@ -79,7 +79,7 @@ def generate_commit(path):
     index.commit(commit_message, author=author, committer=committer)
 
     # Push
-    repo.push()
+    repo.git.push()
     # repo.remotes.origin.push
 
 def main(argv):
