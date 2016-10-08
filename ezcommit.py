@@ -70,7 +70,6 @@ def generate_commit(path, feat_count, submissions, debug):
     diff = repo.git.diff('HEAD~0', name_only=True)
     untracked = repo.untracked_files
     deleted = []
-    z = 1
 
     # For the summary
     root_nodes = []
@@ -159,13 +158,14 @@ def generate_commit(path, feat_count, submissions, debug):
     for script in python_scripts:
         if script in diff or script in untracked:
             # Write out the changes for his one
-            script_features = [t for t in all_important_feats if (t[0] is script)]
-            changes = '\n- '
-            for i in range(0, feat_count):
-                if len(script_features) > 0:
-                    script_feature = script_features.pop(0)
-                    changes = changes+'- '
-                    changes = changes+str(script_feature[1])+' '+str(script_feature[2])
+            if len(all_important_feats) is not 0:
+                script_features = [t for t in all_important_feats if (t[0] is script)]
+                changes = '\n- '
+                for i in range(0, feat_count):
+                    if len(script_features) > 0:
+                        script_feature = script_features.pop(0)
+                        changes = changes+'- '
+                        changes = changes+str(script_feature[1])+' '+str(script_feature[2])
 
             # Build the message
             commit_message = commit_message+script+': '+changes+'\n'
